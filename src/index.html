@@ -1,12 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>My App</title>
+  <title>Chat/Video WebRTC Test</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+  <script type="text/javascript" src="index.js"></script>
 </head>
+
 <body>
-  <div id="App"></div>
+  <div class="container">
+    <aside class="user_list">
+      <div class="user_list__title">
+        <h3>Usuários</h3>
+        <p>Clique para realizar chamada</p>
+      </div>
+      <ul class="user_list__users"></ul>
+    </aside>
+    <section class="chat">
+      <div class="chat__box">
+      </div>
+      <div class="chat__input">
+        <input id="text" type="text" name="text" maxlength="256" placeholder="Sua mensagem" autocomplete="off" onkeyup="handleKey(event)">
+      </div>
+    </section>
+    <section class="video">
+      <div class="video__box">
+        <video class="video__box--local"></video>
+        <video class="video__box--received"></video>
+      </div>
+      <div class="video__buttons">
+        <button class="video__btn--hangup">Hang Up</button>
+      </div>
+    </section>
+  </div>
+
+
+
+  <!-- <div class="container">
+   
+    <div class="row shadow">
+      <div id="userlist-container" class="col-xs-2">
+        <div class="title">
+          <h3 class="title-users">Usuários</h3>
+          <p>Clique para realizar chamada</p>
+        </div>
+        <ul id="userlistbox"></ul>
+      </div>
+      <div id="chat-container" class="col-xs-6">
+        <div>
+          <div id="chatbox"></div>
+        </div>
+      </div>
+
+      <div id="camera-container" class="col-xs-4">
+        <video id="received_video" autoplay></video>
+        <video id="local_video" autoplay muted>
+
+        </video>
+        <button id="hangup-button" onclick="hangUpCall();" class=" glyphicon glyphicon-earphone" disabled>
+        </button>
+      </div>
+    </div>
+    <div class="row">
+      <div id="control-row" class="col-xs-offset-2 col-xs-6">
+        <div id="empty-container"></div>
+        <div id="chat-controls-container">
+          <input id="text" type="text" name="text" maxlength="256" placeholder="Sua mensagem" autocomplete="off" onkeyup="handleKey(event)"
+            disabled>
+          <button id="send" name="send" class="btn " onclick="handleSendButton()" disabled>
+            <span class="glyphicon glyphicon-send"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+
 </body>
+
 </html>

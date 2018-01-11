@@ -18,6 +18,7 @@
     "lint": "eslint ./src",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --env.dev --open",
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha",
+    "postinstall": "cp node_modules/webrtc-adapter/out/adapter.js ./src/js/plugins/",
     "build": "npm run clean && cross-env NODE_ENV=production webpack --progress --env.prod"
   },
   "devDependencies": {
@@ -46,7 +47,8 @@
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.2",
     "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.8.2"
+    "webpack-dev-server": "^2.8.2",
+    "webrtc-adapter": "^6.0.4"
   },
   "dependencies": {
     "eslint-config-standard": "^11.0.0-beta.0",
