@@ -1,0 +1,43 @@
+.user_list {
+  width: 20vw;
+  text-align: center;
+  color: #aaa;
+  background: #333333;
+  &__title {
+    h3 {
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #fff;
+    }
+    p {
+      letter-spacing: 1px;
+      font-size: 12px;
+    }
+  }
+  &__users {
+    text-align: left;
+    list-style: none;
+    li {
+      margin-left: 15px;
+      margin-top: 15px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: .15s;
+      &:hover {
+        color: #fff,
+      }
+      &:before {
+        content: '';
+        display: inline-block;
+        margin-right: 15px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #369;
+        vertical-align: middle;
+        border: 4px solid #2a2;
+      }
+    }
+  }
+}

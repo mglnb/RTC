@@ -1,0 +1,33 @@
+.login {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  height: 100vh;
+  width: 100vw;
+  transition: 1s;
+  &.active {
+    opacity: 1;
+    visibility: visible;
+    background: rgba(#333, 0.5);
+  }
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &__box {
+    display: flex;
+    flex-direction: column;
+    font-size: 36px;
+    color: #fff;
+  }
+  input {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid #eee;
+    font-size: 48px;
+    outline: none;
+    color: #fff;
+  }
+}

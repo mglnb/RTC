@@ -1,0 +1,23 @@
+.video {
+  transform: translateY(-400px);
+  background: #eee;
+  transition: 1s;
+  height: 0;
+  &__box {
+    padding: 50px;
+    &--local {
+      height:70px
+    }
+    &--remote {}
+  }
+  &__wrap {
+    text-align: center;
+    background: #ddd;
+  }
+  &.active {
+    transform: translateY(0);
+  }
+  video {
+    background: #eee;
+  }
+}
