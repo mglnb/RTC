@@ -1,11 +1,12 @@
 class Chat {
   constructor() {
     this.msg = {
-      sender: sessionStorage.getItem('user') || '',
+      sender: '',
       msgs: []
     }
     this.$chatbox = document.querySelector('.chat__msgs')
     this.$chatinput = document.getElementById('text')
+    this.dataChannel = null
   }
 
   appendMsg(text) {
@@ -20,16 +21,19 @@ class Chat {
       </ul>
     </div>
     `
-
     this.$chatbox.insertAdjacentHTML('beforeend', msg)
     this.$chatbox.scrollTop = this.$chatbox.scrollHeight
   }
-
-  init() {
+  setUser(user) {
+    this.msg.sender = user
+  }
+  init(dataChannel) {
+    this.DataChannel = dataChannel
     this.$chatinput.addEventListener('keypress', e => {
       let key = e.which || e.keyCode
       if (e.target.value === '') return
       if (key === 13) {
+        this.DataChannel.sendMessage(e.target.value)
         this.appendMsg(e.target.value)
         e.target.value = ''
       }
