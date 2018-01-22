@@ -2,7 +2,13 @@ const express = require('express')
 const http = require('http')
 const path = require('path')
 const os = require('os')
+const fs = require('fs')
 let app = express()
+let options = {
+  key: fs.readFileSync('./key.pem'),
+  cert: fs.readFileSync('./cert.pem'),
+  passphrase: '91533266'
+}
 let server = http.createServer(app)
 const io = require('socket.io')(server)
 let ip = os.networkInterfaces()['Ethernet'][1].address
@@ -32,7 +38,10 @@ io.on('connection', socket => {
     console.log('messageRtc')
     socket.broadcast.emit('messageRtcClient', data)
   })
-
+  socket.on('new-ice-candidate', data => {
+    console.log(data)
+    socket.broadcast.emit('new-ice-candidate-client', data)
+  })
   socket.on('login', username => {
     console.log('login')
     if (addedUser) return
