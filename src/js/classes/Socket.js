@@ -23,7 +23,7 @@ class Socket {
 
     this.socket.on('userJoined', data => {
       console.log('loguei', data)
-      this.userlist.push(data.username)
+      this.userlist.push({id: data.id, username: data.username})
       User.appendUser(this.userlist)
     })
 

@@ -5,10 +5,13 @@
   height: 0;
   &__box {
     padding: 50px;
+    opacity: 0.1;
     &--local {
       height:70px
     }
-    &--remote {}
+    &--remote {
+      height: 150px
+    }
   }
   &__wrap {
     text-align: center;
