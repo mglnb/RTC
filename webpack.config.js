@@ -79,6 +79,7 @@ module.exports = env => {
       contentBase: srcDir,
       historyApiFallback: true,
       disableHostCheck: true,
+      host: '10.70.130.111',
       hot: false,
       inline: true,
       port: 3000

@@ -2,27 +2,33 @@ import Chat from './Chat'
 import PeerConnection from './PeerConnection'
 import Socket from './Socket'
 class User {
-  constructor () {
+  constructor() {
     this.$userinput = document.getElementById('username')
     this.$userlist = document.querySelector('.user_list__users')
     this.$login = document.querySelector('.login')
     this.$user = ''
   }
-  appendUser (array) {
+  appendUser(array) {
     let users = array
     this.$userlist.innerHTML = ''
     users.forEach(value => {
       this.$userlist.insertAdjacentHTML('beforeend', `<li>${value}</li>`)
     })
+
+    Object.entries(this.$userlist.children).forEach(li => {
+      li[1].addEventListener('click', e => {
+        PeerConnection.connect(e)
+      })
+    })
   }
-  bindEvents () {
+  bindEvents() {
     this.$userlist.children.forEach(li => {
       li.addEventListener('click', e => {
         PeerConnection.connect(e.target)
       })
     })
   }
-  init () {
+  init() {
     Chat.init(PeerConnection)
     Socket.init()
 

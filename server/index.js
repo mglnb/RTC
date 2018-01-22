@@ -1,12 +1,13 @@
 const express = require('express')
 const http = require('http')
 const path = require('path')
+const os = require('os')
 let app = express()
 let server = http.createServer(app)
 const io = require('socket.io')(server)
-
+let ip = os.networkInterfaces()['Ethernet'][1].address
 let port = process.env.PORT || 3030
-server.listen(port, function () {
+server.listen(port, ip, function () {
   console.log('Server is listen on ' + port)
 })
 
@@ -16,6 +17,9 @@ let usersCount = 0
 let users = []
 io.on('connection', socket => {
   let addedUser = false
+  socket.on('ping', function () {
+    socket.emit('pong')
+  })
 
   socket.on('message', data => {
     console.log('message')
@@ -23,6 +27,10 @@ io.on('connection', socket => {
       username: socket.username,
       message: data
     })
+  })
+  socket.on('messageRtc', data => {
+    console.log('messageRtc')
+    socket.broadcast.emit('messageRtcClient', data)
   })
 
   socket.on('login', username => {

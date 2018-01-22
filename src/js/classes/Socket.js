@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 import User from './User'
 import Chat from './Chat'
-var socket = io('http://localhost:3030/')
+var socket = io('http://10.70.130.111:3030/')
 class Socket {
   constructor () {
     this.socket = socket

@@ -1,9 +1,9 @@
 import Socket from './Socket'
+import PeerConnection from './PeerConnection'
 class Chat {
   constructor() {
     this.$chatbox = document.querySelector('.chat__msgs')
     this.$chatinput = document.getElementById('text')
-    this.PeerConnection = null
   }
 
   appendMsg({username, message}) {
@@ -22,6 +22,7 @@ class Chat {
     this.$chatbox.scrollTop = this.$chatbox.scrollHeight
   }
   init() {
+    PeerConnection.init()
     this.$chatinput.addEventListener('keypress', e => {
       let key = e.which || e.keyCode
       if (e.target.value === '') return
