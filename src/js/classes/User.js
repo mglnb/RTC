@@ -15,7 +15,7 @@ class User {
     let users = array
     this.$userlist.innerHTML = ''
     users.forEach(value => {
-      this.$userlist.insertAdjacentHTML('beforeend', `<li>${value.username}</li>`)
+      this.$userlist.insertAdjacentHTML('beforeend', `<li id="${value.id}">${value.username}</li>`)
     })
 
     Object.entries(this.$userlist.children).forEach(li => {

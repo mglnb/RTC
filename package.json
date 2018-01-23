@@ -16,6 +16,7 @@
   "scripts": {
     "clean": "rm -Rf build/*",
     "lint": "eslint ./src",
+    "start" : "node ./server/index.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --env.dev --open",
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha",
     "postinstall": "cp node_modules/webrtc-adapter/out/adapter.js ./src/js/plugins/",

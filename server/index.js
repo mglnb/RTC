@@ -4,11 +4,11 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 let app = express()
-let options = {
-  key: fs.readFileSync('./key.pem'), 
-  cert: fs.readFileSync('./cert.pem'),
-  passphrase: '91533266'
-}
+// let options = {
+//   key: fs.readFileSync('./key.pem'), 
+//   cert: fs.readFileSync('./cert.pem'),
+//   passphrase: '91533266'
+// }
 let server = http.createServer(app)
 const io = require('socket.io')(server)
 let ip = os.networkInterfaces()['Ethernet'][1].address
@@ -51,13 +51,14 @@ io.on('connection', socket => {
     socket.username = username
     ++usersCount
     addedUser = true
-    users.push(username)
+    users.push({id: socket.id, username: username})
     socket.emit('makeLogin', {
       users: users,
       usersCount: usersCount
     })
 
     socket.broadcast.emit('userJoined', {
+      id: socket.id,
       username: socket.username,
       usersCount: usersCount
     })
