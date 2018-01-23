@@ -1,20 +1,13 @@
 const express = require('express')
 const http = require('http')
 const path = require('path')
-const os = require('os')
-const fs = require('fs')
 const chalk = require('chalk')
 let app = express()
-// let options = {
-//   key: fs.readFileSync('./key.pem'), 
-//   cert: fs.readFileSync('./cert.pem'),
-//   passphrase: '91533266'
-// }
+
 let server = http.createServer(app)
-const io = require('socket.io')(server)
-let ip = os.networkInterfaces()['Ethernet'][1].address
+const io = require('socket.io', {origins: 'mglrtc2.herokuapp.com:* https://mglrtc2.herokuapp.com:* https://www.mglrtc2.herokuapp.com/:*'})(server)
 let port = process.env.PORT || 3030
-server.listen(port, ip, function () {
+server.listen(port, function () {
   console.log('Server is listen on ' + port)
 })
 
@@ -25,9 +18,6 @@ let users = []
 
 io.on('connection', socket => {
   let addedUser = false
-  socket.on('ping', function () {
-    socket.emit('pong')
-  })
 
   socket.on('message', data => {
     console.log('message')
@@ -57,7 +47,7 @@ io.on('connection', socket => {
     socket.username = username
     ++usersCount
     addedUser = true
-    users.push({ id: socket.id, username: username })
+    users.push({id: socket.id, username: username})
     socket.emit('makeLogin', {
       id: socket.id,
       user: socket.username,

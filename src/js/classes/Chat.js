@@ -1,12 +1,24 @@
 import Socket from './Socket'
 import PeerConnection from './PeerConnection'
+
+/**
+ * @export
+ * @class Chat
+ */
 class Chat {
-  constructor() {
+  /**
+   * Creates an instance of Chat.
+   * @memberof Chat
+   */
+  constructor () {
     this.$chatbox = document.querySelector('.chat__msgs')
     this.$chatinput = document.getElementById('text')
   }
-
-  appendMsg({username, message}) {
+  /**
+   * @param {Object} {username, message}
+   * @memberof Chat
+   */
+  appendMsg ({username, message}) {
     let msg = `
     <div class="chat__msg">
       <img class="chat__msg--img" src="https://openclipart.org/image/2400px/svg_to_png/177482/ProfilePlaceholderSuit.png" alt="">
@@ -21,7 +33,12 @@ class Chat {
     this.$chatbox.insertAdjacentHTML('beforeend', msg)
     this.$chatbox.scrollTop = this.$chatbox.scrollHeight
   }
-  init() {
+  /**
+   * Inicializa o chat assim que der um enter
+   * Inicializando também a os eventos de socket da classe PeerConnection
+   * @memberof Chat
+   */
+  init () {
     PeerConnection.init()
     this.$chatinput.addEventListener('keypress', e => {
       let key = e.which || e.keyCode
