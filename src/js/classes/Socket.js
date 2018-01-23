@@ -17,6 +17,7 @@ class Socket {
 
     this.socket.on('makeLogin', data => {
       console.log('fez login', data)
+      document.location.hash = `${data.id}`
       this.userlist = data.users
       User.appendUser(this.userlist)
     })

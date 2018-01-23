@@ -35,10 +35,7 @@ class Video {
     }
   }
   init() {
-    this.$userlist.forEach((value, index) => {
-      value.addEventListener('click', e => {
-      })
-    })
+  
   }
 }
 

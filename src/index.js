@@ -1,3 +1,3 @@
-import './js/plugins/adapter'
-import './styles.scss'
-import './js'
+require('./js/plugins/adapter')
+require('./styles.scss')
+require('./js')

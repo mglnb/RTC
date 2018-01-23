@@ -29,7 +29,7 @@ class Chat {
       if (key === 13) {
         Socket.socket.emit('message', e.target.value)
         this.appendMsg({
-          username: sessionStorage.getItem('user'),
+          username: localStorage.getItem('user'),
           message: e.target.value
         })
         e.target.value = ''

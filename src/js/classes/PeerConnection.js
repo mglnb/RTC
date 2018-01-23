@@ -9,6 +9,7 @@ class PeerConnection {
   constructor() {
     this.peerConnection = null
     this.userlist = document.querySelectorAll('.user_list__users li')
+    this.caller = ''
     this.receiver = ''
     this.peerConfig = {
       'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }, {
@@ -32,6 +33,7 @@ class PeerConnection {
 
     Socket.socket.on('messageRtcClient', data => {
       console.log(data.data.type)
+      this.caller = data.caller
       if (data.data.type === 'offer') {
         promise(0)
           .then(() => {
@@ -52,12 +54,14 @@ class PeerConnection {
               .then(() => this.peerConnection.createAnswer())
               .then(answer => {
                 this.peerConnection.setLocalDescription(answer)
-                let receiver = localStorage.getItem('target') || this.receiver
-
+                let caller = this.caller
+                let receiver = localStorage.getItem('target')
+                console.warn('answer', caller, receiver)
                 Socket.socket.emit('messageRtc', {
                   type: 'video-answer',
                   data: answer,
-                  username: receiver
+                  username: receiver,
+                  caller
                 })
               }).catch(err => console.error(err))
           })
@@ -78,7 +82,8 @@ class PeerConnection {
       console.log('onicecandidate', e)
       let rtc = e.candidate
       let receiver = localStorage.getItem('target') || this.receiver
-      Socket.socket.emit('new-ice-candidate', { ice: rtc, username: receiver })
+      let caller = this.caller
+      Socket.socket.emit('new-ice-candidate', { ice: rtc, username: receiver, caller })
     }
 
     this.peerConnection.onnegotiationneeded = e => {
@@ -88,17 +93,19 @@ class PeerConnection {
           .then(offer => {
             this.peerConnection.setLocalDescription(offer)
             let receiver = localStorage.getItem('target') || this.receiver
-
+            let caller = this.caller
             Socket.socket.emit('messageRtc', {
               type: 'video-offer',
               data: offer,
-              username: receiver
+              username: receiver,
+              caller
             })
           })
       }
     }
   }
   connect(e) {
+    this.caller = document.location.hash.substr(1)
     this.receiver = e || localStorage.getItem('target')
     promise(0)
       .then(() => {

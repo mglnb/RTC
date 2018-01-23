@@ -14,13 +14,13 @@
   },
   "license": "MIT",
   "scripts": {
-    "clean": "rm -Rf build/*",
+    "clean": "",
     "lint": "eslint ./src",
     "start" : "node ./server/index.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --env.dev --open",
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha",
     "postinstall": "cp node_modules/webrtc-adapter/out/adapter.js ./src/js/plugins/",
-    "build": "npm run clean && cross-env NODE_ENV=production webpack --progress --env.prod"
+    "build": "cross-env NODE_ENV=production webpack --progress --env.prod"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.4",

@@ -3,6 +3,7 @@ const http = require('http')
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
+const chalk = require('chalk')
 let app = express()
 // let options = {
 //   key: fs.readFileSync('./key.pem'), 
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 let usersCount = 0
 let users = []
+
 io.on('connection', socket => {
   let addedUser = false
   socket.on('ping', function () {
@@ -35,12 +37,16 @@ io.on('connection', socket => {
     })
   })
   socket.on('messageRtc', data => {
-    console.log('messageRtc')
-    socket.broadcast.emit('messageRtcClient', data)
+    console.log(chalk.red('messageRtc', JSON.stringify(data.username)))
+    console.log(chalk.yellow('messageRtc', JSON.stringify(data.caller)))
+    socket.to(data.username).emit('messageRtcClient', data)
+    socket.to(data.caller).emit('messageRtcClient', data)
   })
   socket.on('new-ice-candidate', data => {
-    console.log(data)
-    socket.broadcast.emit('new-ice-candidate-client', data)
+    console.log(chalk.blue('new-ice-candidate', JSON.stringify(data.username)))
+    console.log(chalk.green('new-ice-candidate', JSON.stringify(data.caller)))
+    socket.to(data.username).emit('new-ice-candidate-client', data)
+    socket.to(data.caller).emit('new-ice-candidate-client', data)
   })
   socket.on('login', username => {
     console.log('login')
@@ -51,8 +57,10 @@ io.on('connection', socket => {
     socket.username = username
     ++usersCount
     addedUser = true
-    users.push({id: socket.id, username: username})
+    users.push({ id: socket.id, username: username })
     socket.emit('makeLogin', {
+      id: socket.id,
+      user: socket.username,
       users: users,
       usersCount: usersCount
     })

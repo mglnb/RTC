@@ -20,8 +20,8 @@ class User {
 
     Object.entries(this.$userlist.children).forEach(li => {
       li[1].addEventListener('click', e => {
-        localStorage.setItem('target', e.target.innerText)
-        PeerConnection.connect(e.target.innerText)
+        localStorage.setItem('target', e.target.id)
+        PeerConnection.connect(e.target.id)
         Video.openVideoBox()
       })
     })
@@ -45,7 +45,7 @@ class User {
       if (e.target.value === '') return
       if (key === 13) {
         Socket.socket.emit('login', e.target.value)
-        sessionStorage.setItem('user', e.target.value)
+        localStorage.setItem('user', e.target.value)
         // Chat.setUser(e.target.value)
         // this.appendUser(e.target.value)
 
