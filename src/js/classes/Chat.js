@@ -1,5 +1,4 @@
 import Socket from './Socket'
-import PeerConnection from './PeerConnection'
 
 /**
  * @export
@@ -13,6 +12,7 @@ class Chat {
   constructor () {
     this.$chatbox = document.querySelector('.chat__msgs')
     this.$chatinput = document.getElementById('text')
+    this.$user = document.getElementById(document.location.hash.substr(1))
   }
   /**
    * @param {Object} {username, message}
@@ -35,18 +35,16 @@ class Chat {
   }
   /**
    * Inicializa o chat assim que der um enter
-   * Inicializando também a os eventos de socket da classe PeerConnection
    * @memberof Chat
    */
   init () {
-    PeerConnection.init()
     this.$chatinput.addEventListener('keypress', e => {
       let key = e.which || e.keyCode
       if (e.target.value === '') return
       if (key === 13) {
         Socket.socket.emit('message', e.target.value)
         this.appendMsg({
-          username: localStorage.getItem('user'),
+          username: this.$user.innerText,
           message: e.target.value
         })
         e.target.value = ''
