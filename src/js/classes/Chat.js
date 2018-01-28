@@ -19,6 +19,7 @@ class Chat {
    * @memberof Chat
    */
   appendMsg ({username, message}) {
+    this.$user = document.getElementById(document.location.hash.substr(1))
     let msg = `
     <div class="chat__msg">
       <img class="chat__msg--img" src="https://openclipart.org/image/2400px/svg_to_png/177482/ProfilePlaceholderSuit.png" alt="">
@@ -44,7 +45,7 @@ class Chat {
       if (key === 13) {
         Socket.socket.emit('message', e.target.value)
         this.appendMsg({
-          username: this.$user.innerText,
+          username: this.$user.textContent,
           message: e.target.value
         })
         e.target.value = ''
