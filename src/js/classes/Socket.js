@@ -1,7 +1,6 @@
 import io from 'socket.io-client'
 import User from './User'
 import Chat from './Chat'
-import Video from './Video'
 import PeerConnection from './PeerConnection'
 import { log } from '../helper'
 /**

@@ -13,6 +13,7 @@ class Video {
   constructor() {
     this.$box = document.querySelector('.video')
     this.$chatbox = document.querySelector('.chat__box')
+    this.$videobox = document.querySelector('.video__box')
     this.$local = document.querySelector('.video__box--local')
     this.$remote = document.querySelector('.video__box--remote')
     this.$userlist = document.querySelectorAll('.user_list__users li')
@@ -63,11 +64,14 @@ class Video {
    */
   addRemoteStream(stream) {
     log(`Adicionado stream remota: ${stream.id}`)
+    let clone = this.$remote.cloneNode()
+    clone.style.display = 'inline'
     try {
-      this.$remote.srcObject = stream
+      clone.srcObject = stream
     } catch (e) {
-      this.$remote.src = URL.createObjectURL(stream)
+      clone.src = URL.createObjectURL(stream)
     }
+    this.$videobox.appendChild(clone)
   }
   init() {
     this.$hangup.addEventListener('click', e => {
