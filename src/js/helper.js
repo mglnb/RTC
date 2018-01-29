@@ -20,7 +20,7 @@ export function promise (t) {
 export function log (msg, type = 'log', color = 'blue') {
   let colors = {
     'gray': 'font-weight: bold; color: #1B2B34;',
-    'red': 'font-weight: bold; background-color: #EC5f67; color: white',
+    'red': 'font-weight: bold; background-color: #EC5f67; color: #FFFFFF;',
     'orange': 'font-weight: bold; color: #F99157;',
     'yellow': 'font-weight: bold; color: #FAC863;',
     'green': 'font-weight: bold; color: #99C794;',
@@ -32,7 +32,7 @@ export function log (msg, type = 'log', color = 'blue') {
   if (type === 'log') {
     console.log(`%c${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} - Log: %c %s`, `color: ${colors[color]}, font-size: 16px`, '', msg.toString())
   } else if (type === 'error') {
-    console.log(`%c${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} - Error: %c %s`, `color: ${colors.red}, font-size: 16px`, '', msg.toString())
+    console.error(`%c${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} - Error: %c %s`, `color: ${colors.red}, font-size: 16px`, '', msg.toString())
   } else {
     console.log(`%c${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} - Warning: %c %s`, `color: ${colors.yellow}, font-size: 16px`, '', msg.toString())
   }

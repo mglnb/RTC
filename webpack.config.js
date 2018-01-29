@@ -21,6 +21,7 @@ module.exports = env => {
     entry: {
       app: srcDir
     },
+    devtool: 'source-map',
     output: {
       filename: '[name].js',
       path: dstDir

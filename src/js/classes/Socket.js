@@ -14,7 +14,7 @@ class Socket {
    * @memberof Socket
    */
   constructor() {
-    this.socket = io('https://mglrtc2.herokuapp.com/')
+    this.socket = io('http://localhost:3030/')
     this.userlist = []
   }
 

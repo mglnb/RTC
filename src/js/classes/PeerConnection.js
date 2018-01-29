@@ -57,11 +57,11 @@ class PeerConnection {
       .then(stream => {
         Video.addLocalStream(stream)
         Video.addRemoteStream(this.peerConnection.getRemoteStreams()[0])
-        log('addRemoteStream: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'teal')
         this.peerConnection.addStream(stream) // dispara onnegociationneeded com valor de have-remote-offer
       })
       .then(() => this.peerConnection.createAnswer())
       .then(answer => {
+        this.bindChannelEvent()
         this.peerConnection.setLocalDescription(answer)
         Socket.socket.emit('messageRtc', {
           type: 'video-answer',
@@ -110,12 +110,9 @@ class PeerConnection {
         caller: this.caller
       })
     }
-
-    this.peerConnection.ondatachannel = e => {
-      log('ondatachannel: ' + JSON.stringify(e.channel), 'log', 'purple')
-      this.dataChannel = e.channel
+    if (this.dataChannel) {
       this.dataChannel.onmessage = event => {
-        log('ondatachannelmessage: ' + JSON.stringify(event), 'log', 'purple')
+        log('ondatachannelmessagelocal: ' + JSON.stringify(event), 'log', 'purple')
         log('remoteStreams: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'purple')
         Chat.appendMsg({
           username: 'teste',
@@ -124,18 +121,41 @@ class PeerConnection {
       }
       this.dataChannel.onopen = e => {
         if (this.dataChannel.readyState === 'open') {
-          log('Data Channel open')
-        }
-      }
-    }
-    if (this.dataChannel) {
-      this.dataChannel.onopen = e => {
-        if (this.dataChannel.readyState === 'open') {
-          log('Data Channel open')
+          // --------------------------------------
+          // ----------- DEBUG VARS ---------------
+          // --------------------------------------
+          window.dataChannel = this.dataChannel
+          window.asd = 'local'
+          log('Data Channel open local')
         }
       }
     }
   }
+  bindChannelEvent() {
+    this.peerConnection.ondatachannel = e => {
+      log('ondatachannel: ' + JSON.stringify(e.channel), 'log', 'purple')
+      this.dataChannel = e.channel
+      this.dataChannel.onmessage = event => {
+        log('ondatachannelmessageRemote: ' + JSON.stringify(event), 'log', 'purple')
+        log('remoteStreams: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'purple')
+        Chat.appendMsg({
+          username: 'teste',
+          message: event.data
+        })
+      }
+      this.dataChannel.onopen = e => {
+        if (this.dataChannel.readyState === 'open') {
+          // --------------------------------------
+          // ----------- DEBUG VARS ---------------
+          // --------------------------------------
+          window.asd = 'remote'
+          window.dataChannel = this.dataChannel
+          log('Data Channel open remote')
+        } 
+      }
+    }
+  }
+
   /**
    * Sempre que for emitido o messageRtc, este método trata ele
    * @event messageRtc
@@ -150,7 +170,7 @@ class PeerConnection {
         .then(() => Video.addRemoteStream(this.peerConnection.getRemoteStreams()[0]))
         .then(() => log('addRemoteStream: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'teal'))
         .catch(err => log(err, 'error'))
-      return 
+      return
     }
     // Emitido para o usuário que está recebendo a ligação
     promise(0)
@@ -166,10 +186,12 @@ class PeerConnection {
    * @param {Object} data
    */
   iceCandidateClient(data) {
-    log(`new-ice-candidate-client: ${JSON.stringify(data)}`)
     if (!data.ice || !this.peerConnection) return
-    let ice = new RTCIceCandidate(data.ice)
-    this.peerConnection.addIceCandidate(ice)
+    if (!this.peerConnection.remoteDescription.type) {
+      this.peerConnection.addIceCandidate(new RTCIceCandidate(data.ice))
+        .then(() => log(`new-ice-candidate-client: ${JSON.stringify(data)}`))
+        .catch(err => log(`${err} ${JSON.stringify(data.ice, null, '\t')}`, 'error'))
+    }
   }
   /**
    * Desliga a chamada
