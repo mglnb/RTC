@@ -16,7 +16,7 @@
   "scripts": {
     "clean": "",
     "lint": "eslint ./src",
-    "start" : "node ./server/index.js",
+    "start": "node ./server/index.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --env.dev --open",
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha",
     "postinstall": "cp node_modules/webrtc-adapter/out/adapter.js ./src/js/plugins/",
@@ -54,6 +54,7 @@
   "dependencies": {
     "eslint-config-standard": "^11.0.0-beta.0",
     "jquery": "^3.2.1",
+    "pixi.js": "^4.7.0",
     "socket.io-client": "^2.0.4"
   }
 }
