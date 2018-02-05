@@ -1,70 +1,37 @@
 {
-  "name": "webpack-babel-phaser",
-  "version": "1.0.0",
-  "description": "A phaser template written in ES2015 with Babel and Webpack.",
-  "author": "Paul McMonagle <mcmonagle.paul@gmail.com> (http://github.com/pmcmonagle)",
-  "license": "MIT",
-  "main": "src/main.js",
-  "keywords": [
-    "phaser",
-    "babel",
-    "webpack"
-  ],
-  "scripts": {
-    "preclean": "mkdirp dist",
-    "clean": "rimraf dist/*",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --fix src",
-    "build:html": "ncp static/index.html dist/index.html",
-    "build:assets": "ncp static/assets dist/assets",
-    "build:js": "webpack -p --config build.config.js",
-    "build": "npm run build:html && npm run build:assets && npm run build:js",
-    "prebuild": "npm run clean",
-    "prebuild:js": "npm run lint",
-    "start": "webpack-dev-server"
-  },
-  "devDependencies": {
-    "expose-loader": "^0.7.3",
-    "babel-core": "^6.3.26",
-    "babel-loader": "^6.2.1",
-    "babel-preset-es2017": "^6.3.13",
-    "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^3.0.1",
-    "mkdirp": "^0.5.1",
-    "ncp": "^2.0.0",
-    "rimraf": "^2.5.0",
-    "webpack": "^1.12.9",
-    "webpack-dev-server": "^1.14.0"
-  },
-  "eslintConfig": {
-    "extends": "airbnb/base",
-    "globals": {
-      "Phaser": true
+    "name": "PhaserES6",
+    "version": "1.0.0",
+    "description": "",
+    "author": "Miguel Boanova <miguel.boanova@prodigious.com.br>",
+    "main": "index.js",
+    "scripts": {
+        "dev": "webpack",
+        "deploy": "webpack --config webpack.production.config.js",
+        "test": "eslint './src/**/*.js'"
     },
-    "rules": {
-      "indent": [
-        2,
-        4
-      ],
-      "one-var": [
-        1,
-        "always"
-      ],
-      "no-multi-spaces": [
-        2,
-        {
-          "exceptions": {
-            "VariableDeclarator": true,
-            "ImportDeclaration": true
-          }
-        }
-      ]
+    "license": "MIT",
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-eslint": "^8.1.2",
+        "babel-loader": "^7.1.2",
+        "babel-polyfill": "^6.26.0",
+        "babel-preset-env": "^1.6.1",
+        "browser-sync": "^2.21.0",
+        "browser-sync-webpack-plugin": "^1.2.0",
+        "clean-webpack-plugin": "^0.1.17",
+        "copy-webpack-plugin": "^4.3.1",
+        "eslint": "^4.14.0",
+        "eslint-config-standard": "^10.2.1",
+        "eslint-plugin-import": "^2.8.0",
+        "eslint-plugin-node": "^5.2.1",
+        "eslint-plugin-promise": "^3.6.0",
+        "eslint-plugin-standard": "^3.0.1",
+        "expose-loader": "^0.7.4",
+        "html-webpack-plugin": "^2.30.1",
+        "webpack": "^3.10.0"
+    },
+    "dependencies": {
+        "phaser-ce": "^2.9.4",
+        "webfontloader": "^1.6.28"
     }
-  },
-  "dependencies": {
-    "p2": "^0.7.1",
-    "phaser": "^2.6.2",
-    "phaser-ce": "^2.10.0",
-    "webpack-strip": "^0.1.0"
-  }
 }

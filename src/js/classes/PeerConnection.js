@@ -1,8 +1,8 @@
 import Socket from './Socket'
 import Video from './Video'
 import Chat from './Chat'
-import { promise, log } from '../helper'
-import { peerConfig } from '../config'
+import {promise, log} from '../helper'
+import {peerConfig} from '../config'
 
 /**
  * Classe base para toda comunicação WebRTC
@@ -13,7 +13,7 @@ class PeerConnection {
   /**
    * Cria uma instancia de PeerConnection
    */
-  constructor() {
+  constructor () {
     this.peerConnection = null
     this.peerConfig = peerConfig
     this.receiver = ''
@@ -24,7 +24,7 @@ class PeerConnection {
    * Inicia a conexão de peer-to-peer
    * @param {String} receiver
    */
-  connect(receiver) {
+  connect (receiver) {
     document.querySelector('.user_list__title p').addEventListener('click', e => {
       this.dataChannel.send('teste')
     })
@@ -43,9 +43,9 @@ class PeerConnection {
    * addStream dispara o evento onnegotiationneeded com valor de have-local-offer
    * @param {String} type
    */
-  getUserMedia(type = 'offer') {
+  getUserMedia (type = 'offer') {
     if (type === 'offer') {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      navigator.mediaDevices.getUserMedia({audio: true, video: true})
         .then(stream => {
           this.peerConnection.addStream(stream)
           Video.addLocalStream(stream)
@@ -53,7 +53,7 @@ class PeerConnection {
       return
     }
     // se type for == answer
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices.getUserMedia({video: true, audio: true})
       .then(stream => {
         Video.addLocalStream(stream)
         Video.addRemoteStream(this.peerConnection.getRemoteStreams()[0])
@@ -72,7 +72,7 @@ class PeerConnection {
       }).catch(err => log(err, 'error'))
   }
 
-  bindEvents() {
+  bindEvents () {
     /**
      * Primeiro passo da comunicação.
      * Quando recebe a negociação com o valor have-local-offer
@@ -97,7 +97,7 @@ class PeerConnection {
      * Estado do servidor
      */
     this.peerConnection.onsignalingstatechange = e => {
-      log(`signaling state change to ${e.target.signalingState}`)
+      log(`---- estado do servidor: ${e.target.signalingState}`)
     }
     /**
      * Disparado quando o browsers precisa se comunicar com o outro
@@ -113,7 +113,8 @@ class PeerConnection {
     if (this.dataChannel) {
       this.dataChannel.onmessage = event => {
         log('ondatachannelmessagelocal: ' + JSON.stringify(event), 'log', 'purple')
-        log('remoteStreams: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'purple')
+        log('remoteStreams: ' + this.peerConnection.getRemoteStreams(), 'log', 'purple')
+        console.log(this.peerConnection.getRemoteStreams())
         Chat.appendMsg({
           username: 'teste',
           message: event.data
@@ -131,7 +132,7 @@ class PeerConnection {
       }
     }
   }
-  bindChannelEvent() {
+  bindChannelEvent () {
     this.peerConnection.ondatachannel = e => {
       log('ondatachannel: ' + JSON.stringify(e.channel), 'log', 'purple')
       this.dataChannel = e.channel
@@ -151,7 +152,7 @@ class PeerConnection {
           window.asd = 'remote'
           window.dataChannel = this.dataChannel
           log('Data Channel open remote')
-        } 
+        }
       }
     }
   }
@@ -161,32 +162,33 @@ class PeerConnection {
    * @event messageRtc
    * @param {Object} data
    */
-  messageRtcClient(data) {
+  messageRtcClient (data) {
     log(`messageRtcClient: ${data.data.type}`)
     this.caller = data.caller
-    // Quando quem ligou recebe a resposta
-    if (data.data.type === 'answer') {
-      this.peerConnection.setRemoteDescription(data.data)
-        .then(() => Video.addRemoteStream(this.peerConnection.getRemoteStreams()[0]))
-        .then(() => log('addRemoteStream: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'teal'))
+    // Emitido para o usuário que está recebendo a ligação
+    if (data.data.type === 'offer') {
+      promise(0)
+        .then(() => (this.peerConnection = new RTCPeerConnection(this.peerConfig)))
+        .then(() => this.bindEvents())
+        .then(() => this.peerConnection.setRemoteDescription(data.data))
+        .then(() => Video.openVideoBox())
+        .then(() => this.getUserMedia('answer'))
         .catch(err => log(err, 'error'))
       return
     }
-    // Emitido para o usuário que está recebendo a ligação
-    promise(0)
-      .then(() => (this.peerConnection = new RTCPeerConnection(this.peerConfig)))
-      .then(() => this.bindEvents())
-      .then(() => this.peerConnection.setRemoteDescription(data.data))
-      .then(() => Video.openVideoBox())
-      .then(() => this.getUserMedia('answer'))
+
+    // Quando quem ligou recebe a resposta
+    this.peerConnection.setRemoteDescription(data.data)
+      .then(() => Video.addRemoteStream(this.peerConnection.getRemoteStreams()[0]))
+      .then(() => log('addRemoteStream: ' + JSON.stringify(this.peerConnection.getRemoteStreams()), 'log', 'teal'))
       .catch(err => log(err, 'error'))
   }
   /**
    * Comunicação ICE entre os browsers
    * @param {Object} data
    */
-  iceCandidateClient(data) {
-    if (!data.ice || !this.peerConnection) return
+  iceCandidateClient (data) {
+    if (!data.ice && !this.peerConnection) return
     if (!this.peerConnection.remoteDescription.type) {
       this.peerConnection.addIceCandidate(new RTCIceCandidate(data.ice))
         .then(() => log(`new-ice-candidate-client: ${JSON.stringify(data)}`))
@@ -196,7 +198,7 @@ class PeerConnection {
   /**
    * Desliga a chamada
    */
-  hangUp() {
+  hangUp () {
     this.peerConnection = null
   }
 }

@@ -50,7 +50,7 @@ class Video {
    * @memberof Video
    */
   addLocalStream(stream) {
-    log(`Adicionado stream local: ${stream.id}`)
+    log(`Adicionado stream local: ${(stream && stream.id) || 'sem stream'}`)
     try {
       this.$local.srcObject = stream
     } catch (e) {
@@ -63,7 +63,7 @@ class Video {
    * @memberof Video
    */
   addRemoteStream(stream) {
-    log(`Adicionado stream remota: ${stream.id}`)
+    log(`Adicionado stream remota: ${(stream && stream.id) || 'sem stream'}`)
     let clone = this.$remote.cloneNode()
     clone.style.display = 'inline'
     try {
