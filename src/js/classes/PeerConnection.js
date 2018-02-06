@@ -24,12 +24,12 @@ class PeerConnection {
    * Inicia a conexão de peer-to-peer
    * @param {String} receiver
    */
-  connect (receiver) {
+  connect (receiver, caller) {
     document.querySelector('.user_list__title p').addEventListener('click', e => {
       this.dataChannel.send('teste')
     })
 
-    this.caller = document.location.hash.substr(1)
+    this.caller = caller
     this.receiver = receiver || localStorage.getItem('target')
     promise(0)
       .then(() => (this.peerConnection = new RTCPeerConnection(this.peerConfig)))

@@ -31,7 +31,6 @@ class Socket {
     // Disparado quando o usuário faz login
     this.socket.on('makeLogin', data => {
       log(`Você entrou`)
-      document.location.hash = `${data.id}`
       this.me = data.id
       this.to = data.users[0].id
       this.userlist = data.users
@@ -41,7 +40,7 @@ class Socket {
     this.socket.on('userJoined', data => {
       log(`${data.username} fez login`)
       this.to = data.id
-      PeerConnection.connect(data.id)
+      PeerConnection.connect(data.id, this.me)
     })
 
     // Disparado quando o usuário sai do chat

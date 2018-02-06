@@ -23,7 +23,12 @@ io.on('connection', socket => {
     console.log(`sending message to ${data.to} of type ${data.action}`)
     socket.to(data.to).emit('message', data)
   })
- 
+
+  socket.on('dataChannelOpened', () => {
+    socket.emit('dataChannelOpen')
+    socket.broadcast.emit('dataChannelOpen')
+  })
+
   socket.on('login', user => {
     console.log('login')
     if (addedUser) return
@@ -37,6 +42,10 @@ io.on('connection', socket => {
       new: true,
       x: user.x,
       y: user.y,
+      id: socket.id,
+      users
+    })
+    socket.emit('loginPlayer', {
       id: socket.id,
       users
     })

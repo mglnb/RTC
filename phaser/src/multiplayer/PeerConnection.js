@@ -17,11 +17,11 @@ class PeerConnection {
     window.dc = this.dataChannel
   }
 
-  rtcDataChannelEvents () {
-    this.dataChannel.onmessage = e => {
-      console.log(e, 'DataChannel message:' + e.data)
+  rtcDataChannelEvents (cb) {
+    this.dataChannel.onmessage = cb
+    this.dataChannel.onopen = e => {
+      Socket.socket.emit('dataChannelOpened')
     }
-    this.dataChannel.onopen = e => console.log(e, '------ DATACHANNEL ABERTO ------')
     this.dataChannel.onclose = e => console.log(e, '--------- DC FECHADO! ----------')
     this.dataChannel.onerror = e => console.log(e, 'DataChannel error')
     this.peerConnection.ondatachannel = e => {

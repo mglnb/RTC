@@ -1,16 +1,16 @@
 /* globals __DEV__ */
 import 'phaser'
+import 'phaser-ce'
 import {Mushroom, Player} from '../sprites/'
 import Socket from '../multiplayer/Socket'
 import PeerConnection from '../multiplayer/PeerConnection'
-
-let dataChannel = PeerConnection.dataChannel
 export default class extends Phaser.State {
   init () {}
   preload () {}
 
   create () {
     this.players = []
+    this.he = 'ngm'
     this.physics.startSystem(Phaser.Physics.ARCADE)
     let bg = this.add.image(0, 0, 'bg')
     bg.width = window.innerWidth
@@ -22,7 +22,7 @@ export default class extends Phaser.State {
       smoothed: true
     })
     this.banner.anchor.setTo(0.5)
-    this.game.stage.disableVisibilityChange = false
+    this.game.stage.disableVisibilityChange = true
     this.platform = this.add.group()
     this.platform.enableBody = true
     let ground = this.platform.create(0, this.world.height - 32, 'ground')
@@ -39,32 +39,47 @@ export default class extends Phaser.State {
     ledge = this.platform.create(0, 300, 'ground')
     ledge.body.immovable = true
 
-    this.player = new Player({
-      game: this.game,
-      x: 32,
-      y: this.world.height - 150,
-      asset: 'player'
-    })
+    this.player = this.spawn({x: 32, y: this.world.height - 150})
 
     Socket.socket.emit('login', {
       x: this.player.x,
       y: this.player.y
-    }) 
-
+    })
+    Socket.socket.on('dataChannelOpen', () => {
+      this.dc = window.dc
+      PeerConnection.rtcDataChannelEvents(e => {
+        let json = JSON.parse(e.data)
+        switch (json.type) {
+          case 'update':
+            this.updatePosition(json)
+            break
+          case 'stop':
+            this.players[this.he].animations.stop()
+            this.players[this.he].frame = 5
+            break
+        }
+      })
+      this.channel = true
+    })
     Socket.socket.on('loginPlayer', (data) => {
-      this.players = data.users
-      this.players[data.id] = this.spawn(data)
+      if (data.new) {
+        this.playersList = data.users
+        this.he = data.id
+        this.players[data.id] = this.spawn(data)
+        window.he = this.he
+      } else {
+        this.me = data.id
+        window.me = this.me
+        console.log(data.users)
+        data.users.forEach(player => {
+          if (player.id !== this.me) {
+            this.players[player.id] = this.spawn(data)
+            this.he = player.id
+          }
+        })
+      }
     })
 
-    this.add.existing(this.player)
-    this.physics.arcade.enable(this.player)
-
-    this.player.body.bounce.y = 0.0
-    this.player.body.gravity.y = 300
-    this.player.body.collideWorldBounds = true
-
-    this.player.animations.add('left', [0, 1, 2, 3], 10, true)
-    this.player.animations.add('right', [5, 6, 7, 8], 10, true)
     this.cursors = this.input.keyboard.createCursorKeys()
 
     // Star
@@ -83,7 +98,9 @@ export default class extends Phaser.State {
 
   update () {
     let hitPlataform = this.game.physics.arcade.collide(this.player, this.platform)
+    let hitPlataformRemote = this.game.physics.arcade.collide(this.players[this.he], this.platform)
     let hitStar = this.game.physics.arcade.collide(this.stars, this.platform)
+
 
     this.player.body.velocity.x = 0
 
@@ -91,15 +108,67 @@ export default class extends Phaser.State {
       this.player.body.velocity.x = -150
       this.player.animations.play('left')
       this.ultima = 2
+      this.player.label.x = this.player.x - 50
+      this.player.label.y = this.player.y - 30
+      if (this.channel) {
+        this.dc.send(JSON.stringify({
+          type: 'update',
+          x: this.player.x,
+          y: this.player.y,
+          frame: this.ultima
+        }))
+      }
     } else if (this.cursors.right.isDown) {
       this.player.body.velocity.x = 150
       this.player.animations.play('right')
+      this.player.label.x = this.player.x - 50
+      this.player.label.y = this.player.y - 30
+
       this.ultima = 5
+      if (this.channel) {
+        this.dc.send(JSON.stringify({
+          type: 'update',
+          x: this.player.x,
+          y: this.player.y,
+          frame: this.ultima
+        }))
+      }
     } else if (this.cursors.down.isDown) {
+      this.player.label.x = this.player.x - 50
+      this.player.label.y = this.player.y - 30
+
       this.ultima = 4
+      if (this.channel) {
+        this.dc.send(JSON.stringify({
+          type: 'stop',
+          x: this.player.x,
+          y: this.player.y,
+          frame: this.ultima
+        }))
+      }
     } else {
       this.player.animations.stop()
       this.player.frame = this.ultima
+      if (this.channel) {
+        this.dc.send(JSON.stringify({
+          type: 'stop',
+          x: this.player.x,
+          y: this.player.y,
+          frame: this.ultima,
+          stop: true
+        }))
+      }
+    }
+    if (this.cursors.left.justUp || this.cursors.right.justUp || this.cursors.up.justUp) {
+      if (this.channel) {
+        this.dc.send(JSON.stringify({
+          type: 'stop',
+          x: this.player.x,
+          y: this.player.y,
+          frame: this.ultima,
+          stop: true
+        }))
+      }
     }
 
     if (this.cursors.up.isDown && this.player.body.touching.down && hitPlataform) {
@@ -108,7 +177,7 @@ export default class extends Phaser.State {
     this.physics.arcade.overlap(this.player, this.stars, (player, star) => {
       star.kill()
       this.score = this.score + 10
-      this.banner.text = 'Score: ' + this.score
+      this.player.label.setText(' Score: ' + this.score)
     }, null, this)
     if (this.score === 120) {
       this.finish = true
@@ -121,11 +190,45 @@ export default class extends Phaser.State {
     }
   }
   spawn (data) {
-    var p = this.game.add.sprite(data.x, data.y, 'player')
-    p.animations.add('down', [0, 1, 2], 10)
-    p.animations.add('left', [12, 13, 14], 10)
-    p.animations.add('right', [24, 25, 26], 10)
-    p.animations.add('up', [36, 37, 38], 10)
-    return p
+    let player = new Player({
+      game: this.game,
+      x: data.x,
+      y: data.y,
+      asset: 'player'
+    })
+
+    this.add.existing(player)
+    this.physics.arcade.enable(player)
+
+    player.body.bounce.y = 0.0
+    player.body.gravity.y = 300
+    player.body.collideWorldBounds = true
+
+    player.animations.add('left', [0, 1, 2, 3], 10, true)
+    player.animations.add('right', [5, 6, 7, 8], 10, true)
+    player.label = this.game.add.text(data.x, data.y - 10, data.id + ' Score: 0', {font: '12px Arial', fill: '#ffffff'})
+    return player
+  }
+
+  updatePosition (data) {
+    if (this.players[this.he].x > data.x) {
+      this.players[this.he].animations.play('left')
+    } else {
+      this.players[this.he].animations.play('right')
+    }
+    if (data.stop) {
+      this.players[this.he].frame = 5
+    }
+    this.players[this.he].x = data.x
+    this.players[this.he].y = data.y
+    this.players[this.he].label.y = data.y - 30
+    this.players[this.he].label.x = data.x - 50
+
+    this.physics.arcade.overlap(this.players[this.he], this.stars, (player, star) => {
+      star.kill()
+
+      this.score = this.score + 10
+      this.players[this.he].label.setText(this.he + ' Score: ' + this.score)
+    }, null, this)
   }
 }
