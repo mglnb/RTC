@@ -1,14 +1,14 @@
 /* globals __DEV__ */
 import 'phaser'
 import 'phaser-ce'
-import {Mushroom, Player} from '../sprites/'
+import { Mushroom, Player } from '../sprites/'
 import Socket from '../multiplayer/Socket'
 import PeerConnection from '../multiplayer/PeerConnection'
 export default class extends Phaser.State {
-  init () {}
-  preload () {}
+  init() { }
+  preload() { }
 
-  create () {
+  create() {
     this.players = []
     this.he = 'ngm'
     this.physics.startSystem(Phaser.Physics.ARCADE)
@@ -39,7 +39,7 @@ export default class extends Phaser.State {
     ledge = this.platform.create(0, 300, 'ground')
     ledge.body.immovable = true
 
-    this.player = this.spawn({x: 32, y: this.world.height - 150})
+    this.player = this.spawn({ x: 32, y: this.world.height - 150, id: 'Você' })
 
     Socket.socket.emit('login', {
       x: this.player.x,
@@ -47,16 +47,21 @@ export default class extends Phaser.State {
     })
     Socket.socket.on('dataChannelOpen', () => {
       this.dc = window.dc
+      window.a = this
       PeerConnection.rtcDataChannelEvents(e => {
-        let json = JSON.parse(e.data)
-        switch (json.type) {
-          case 'update':
-            this.updatePosition(json)
-            break
-          case 'stop':
-            this.players[this.he].animations.stop()
-            this.players[this.he].frame = 5
-            break
+        try {
+          let json = JSON.parse(e.data)
+          switch (json.type) {
+            case 'update':
+              this.updatePosition(json)
+              break
+            case 'stop':
+              this.players[this.he].animations.stop()
+              this.players[this.he].frame = 5
+              break
+          }
+        } catch (msg) {
+          console.log(e.data)
         }
       })
       this.channel = true
@@ -96,11 +101,10 @@ export default class extends Phaser.State {
     this.finish = false
   }
 
-  update () {
+  update() {
     let hitPlataform = this.game.physics.arcade.collide(this.player, this.platform)
-    let hitPlataformRemote = this.game.physics.arcade.collide(this.players[this.he], this.platform)
-    let hitStar = this.game.physics.arcade.collide(this.stars, this.platform)
-
+    this.game.physics.arcade.collide(this.players[this.he], this.platform)
+    this.game.physics.arcade.collide(this.stars, this.platform)
 
     this.player.body.velocity.x = 0
 
@@ -108,67 +112,68 @@ export default class extends Phaser.State {
       this.player.body.velocity.x = -150
       this.player.animations.play('left')
       this.ultima = 2
-      this.player.label.x = this.player.x - 50
-      this.player.label.y = this.player.y - 30
-      if (this.channel) {
-        this.dc.send(JSON.stringify({
+      if (this.dc && this.dc.readyState === 'open') {
+        this.send({
           type: 'update',
           x: this.player.x,
           y: this.player.y,
           frame: this.ultima
-        }))
+        })
       }
     } else if (this.cursors.right.isDown) {
       this.player.body.velocity.x = 150
       this.player.animations.play('right')
-      this.player.label.x = this.player.x - 50
-      this.player.label.y = this.player.y - 30
 
       this.ultima = 5
-      if (this.channel) {
-        this.dc.send(JSON.stringify({
+      if (this.dc && this.dc.readyState === 'open') {
+        this.send({
           type: 'update',
           x: this.player.x,
           y: this.player.y,
           frame: this.ultima
-        }))
+        })
       }
     } else if (this.cursors.down.isDown) {
-      this.player.label.x = this.player.x - 50
-      this.player.label.y = this.player.y - 30
-
       this.ultima = 4
-      if (this.channel) {
-        this.dc.send(JSON.stringify({
+      if (this.dc && this.dc.readyState === 'open') {
+        this.send({
           type: 'stop',
           x: this.player.x,
           y: this.player.y,
           frame: this.ultima
-        }))
+        })
       }
     } else {
       this.player.animations.stop()
       this.player.frame = this.ultima
-      if (this.channel) {
-        this.dc.send(JSON.stringify({
+      if (this.dc && this.dc.readyState === 'open') {
+        this.send({
           type: 'stop',
           x: this.player.x,
           y: this.player.y,
           frame: this.ultima,
           stop: true
-        }))
+        })
       }
     }
     if (this.cursors.left.justUp || this.cursors.right.justUp || this.cursors.up.justUp) {
-      if (this.channel) {
-        this.dc.send(JSON.stringify({
+      if (this.dc && this.dc.readyState === 'open') {
+        this.send({
           type: 'stop',
           x: this.player.x,
           y: this.player.y,
           frame: this.ultima,
           stop: true
-        }))
+        })
       }
+    }
+    if (this.dc && this.dc.readyState === 'open') {
+      this.send({
+        type: 'update',
+        x: this.player.x,
+        y: this.player.y,
+        frame: 4
+      })
     }
 
     if (this.cursors.up.isDown && this.player.body.touching.down && hitPlataform) {
@@ -176,20 +181,19 @@ export default class extends Phaser.State {
     }
     this.physics.arcade.overlap(this.player, this.stars, (player, star) => {
       star.kill()
-      this.score = this.score + 10
-      this.player.label.setText(' Score: ' + this.score)
+      // this.player.children[0].setText(this.he + ' Score: ' + this.score[this.he])
     }, null, this)
     if (this.score === 120) {
       this.finish = true
     }
   }
 
-  render () {
+  render() {
     if (__DEV__) {
       this.game.debug.spriteInfo(this.player, 32, 32)
     }
   }
-  spawn (data) {
+  spawn(data) {
     let player = new Player({
       game: this.game,
       x: data.x,
@@ -206,29 +210,30 @@ export default class extends Phaser.State {
 
     player.animations.add('left', [0, 1, 2, 3], 10, true)
     player.animations.add('right', [5, 6, 7, 8], 10, true)
-    player.label = this.game.add.text(data.x, data.y - 10, data.id + ' Score: 0', {font: '12px Arial', fill: '#ffffff'})
     return player
   }
 
-  updatePosition (data) {
+  updatePosition(data) {
     if (this.players[this.he].x > data.x) {
       this.players[this.he].animations.play('left')
-    } else {
+    } else if (this.players[this.he].x < data.x) {
       this.players[this.he].animations.play('right')
     }
     if (data.stop) {
-      this.players[this.he].frame = 5
+      this.players[this.he].animations.stop()
+      this.players[this.he].frame = 4
     }
     this.players[this.he].x = data.x
     this.players[this.he].y = data.y
-    this.players[this.he].label.y = data.y - 30
-    this.players[this.he].label.x = data.x - 50
 
     this.physics.arcade.overlap(this.players[this.he], this.stars, (player, star) => {
       star.kill()
-
-      this.score = this.score + 10
-      this.players[this.he].label.setText(this.he + ' Score: ' + this.score)
     }, null, this)
+  }
+
+  send(msg) {
+    this.dc.forEach(dataChannel => {
+      dataChannel.send(JSON.stringify(msg))
+    })
   }
 }

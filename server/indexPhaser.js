@@ -21,6 +21,7 @@ io.on('connection', socket => {
 
   socket.on('message', data => {
     console.log(`sending message to ${data.to} of type ${data.action}`)
+    data.from = socket.id
     socket.to(data.to).emit('message', data)
   })
 

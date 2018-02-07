@@ -52,15 +52,15 @@ class Socket {
     this.socket.on('message', data => {
       if (data.action === 'candidate') {
         if (data.to === this.me) {
-          PeerConnection.handleIceCandidate(data.data)
+          PeerConnection.handleIceCandidate(data)
         }
       } else if (data.action === 'offer') {
         if (data.to === this.me) {
-          PeerConnection.handleOffer(data.data)
+          PeerConnection.handleOffer(data)
         }
       } else if (data.action === 'answer') {
         if (data.to === this.me) {
-          PeerConnection.handleAnswer(data.data)
+          PeerConnection.handleAnswer(data)
         }
       }
     })
